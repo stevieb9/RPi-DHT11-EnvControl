@@ -3,7 +3,7 @@ package RPi::DHT11::EnvControl;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -53,6 +53,8 @@ in C<cron> or the like.
     my $humidifier_status = status(HUMIDIFIER_PIN) ? 'ON' : 'OFF';
 
     print "Exhaust fan is $fan_status, humidifier is $humidifier_status\n";
+
+    cleanup(SENSOR_PIN, FAN_PIN, HUMIDIFIER_PIN);
 
 =head1 DESCRIPTION
 
