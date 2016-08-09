@@ -18,10 +18,12 @@ typedef struct env_data {
 } EnvData;
 
 EnvData read_env(int dht_pin);
-float temp(int dht_pin);
-float humidity(int dht_pin);
-bool status(int pin);
-bool control(int pin, int state);
+float c_temp(int dht_pin);
+float c_humidity(int dht_pin);
+bool c_status(int pin);
+bool c_control(int pin, int state);
+int c_cleanup(int dht_pin, int temp_pin, int humidity_pin);
+
 bool noboard_test(); // unit testing with no RPi board
 void sanity();
 
@@ -48,7 +50,7 @@ EnvData read_env(int dht_pin){
 
     for (i = 0; i < MAXTIMINGS; i++){
         counter = 0;
-        while (digitalRead( dht_pin) == laststate){
+        while (digitalRead(dht_pin) == laststate){
             counter++;
             delayMicroseconds(1);
             if (counter == 255){
@@ -60,7 +62,7 @@ EnvData read_env(int dht_pin){
         if (counter == 255)
             break;
 
-        if ( (i >= 4) && (i % 2 == 0)){
+        if ((i >= 4) && (i % 2 == 0)){
             dht11_dat[j / 8] <<= 1;
             if (counter > 16)
                 dht11_dat[j / 8] |= 1;
@@ -89,7 +91,7 @@ EnvData read_env(int dht_pin){
     return env_data;
 }
 
-float temp(int dht_pin){
+float c_temp(int dht_pin){
     // get & return temperature
 
     sanity();
@@ -98,7 +100,7 @@ float temp(int dht_pin){
     return env_data.temp;
 }
 
-float humidity(int dht_pin){
+float c_humidity(int dht_pin){
     // get & return humidity
 
     sanity();
@@ -107,14 +109,14 @@ float humidity(int dht_pin){
     return env_data.humidity;
 }
 
-bool status(int pin){
+bool c_status(int pin){
     // get the status of a pin
 
     sanity();
     return digitalRead(pin);
 }
 
-bool control(int pin, int state){
+bool c_control(int pin, int state){
     // turn on/off the temp/humidity action pin
    
     sanity();
@@ -131,7 +133,7 @@ bool control(int pin, int state){
     return digitalRead(pin);
 }
 
-int cleanup(int dht_pin, int temp_pin, int humidity_pin){
+int c_cleanup(int dht_pin, int temp_pin, int humidity_pin){
     // reset the pins to default status
 
     sanity();
@@ -168,24 +170,24 @@ MODULE = RPi::DHT11::EnvControl  PACKAGE = RPi::DHT11::EnvControl
 PROTOTYPES: DISABLE
 
 float
-temp (dht_pin)
+c_temp (dht_pin)
 	int	dht_pin
 
 float
-humidity (dht_pin)
+c_humidity (dht_pin)
 	int	dht_pin
 
 bool
-status (pin)
+c_status (pin)
     int pin
 
 bool
-control (pin, state)
+c_control (pin, state)
     int pin
     int state
 
 int
-cleanup (dht_pin, temp_pin, humidity_pin)
+c_cleanup (dht_pin, temp_pin, humidity_pin)
 	int	dht_pin
 	int	temp_pin
 	int	humidity_pin

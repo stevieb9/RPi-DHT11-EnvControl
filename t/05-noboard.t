@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use RPi::DHT11::EnvControl qw(:all);
+use RPi::DHT11::EnvControl;
 use Test::More;
 
 use constant {
@@ -13,15 +13,16 @@ use constant {
 $ENV{RDE_NOBOARD_TEST} = 1;
 
 my $mod = 'RPi::DHT11::EnvControl';
+my $env = $mod->new(dht_pin => DHT);
 
 # temp
 
-my $t = temp(DHT);
+my $t = $env->temp;
 is $t, 0, "temp ok with no board";
 
 # humidity
 
-my $h = humidity(DHT);
+my $h = $env->humidity;
 is $h, 0, "humidity ok with no board";
 
 done_testing();

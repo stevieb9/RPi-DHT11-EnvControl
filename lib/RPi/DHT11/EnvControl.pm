@@ -1,17 +1,80 @@
-package RPi::DHT11::EnvControl;
-
+package RPi::DHT11::EnvControl; 
 use strict;
 use warnings;
 
 our $VERSION = '0.04';
 
-require Exporter;
-our @ISA = qw(Exporter);
-our %EXPORT_TAGS = ('all' => [qw(temp humidity cleanup status control)]);
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+use Carp qw(croak);
 
 require XSLoader;
 XSLoader::load('RPi::DHT11::EnvControl', $VERSION);
+
+$SIG{INT} = sub {};
+
+sub new {
+    my $class = shift;
+    my %args = @_;
+
+    if (! defined $args{dht_pin} || $args{dht_pin} < 0 || $args{dht_pin} > 40){
+        croak "\nnew() requires at minimum the 'dht_pin' param, 0 - 40\n";
+    }
+
+    $args{tpin} = defined $args{tpin} 
+        ? $args{tpin} 
+        : -1;
+
+    $args{h_pin} = defined $args{hpin} 
+        ? $args{hpin}
+        : -1;
+
+    return bless {%args}, $class;
+}
+sub temp {
+    my $self = shift;
+    return c_temp($self->_pin('dht'));
+}
+sub humidity {
+    my $self = shift;
+    return c_humidity($self->_pin('hum'));
+}
+sub status {
+    my ($self, $pin) = @_;
+    croak "pin $pin is not in use for temp or humidity\n"
+      if ! $self->_check_pin($pin);
+    return c_status($pin);
+}
+sub control {
+    my ($self, $pin, $state) = @_;
+    croak "pin $pin is not in use for temp or humidity\n"
+      if ! $self->_check_pin($pin);
+    return c_control($pin, $state);
+}
+sub cleanup {
+    my $self = shift;
+    return c_cleanup(
+        $self->_pin('dht'),
+        $self->_pin('tmp'),
+        $self->_pin('hum')
+    );
+}
+sub DESTROY {
+    my $self = shift;
+    $self->cleanup;
+}
+sub _pin {
+    # retrieve the various pins
+    my ($self, $pin) = @_;
+    return $self->{dht_pin} if $pin eq 'dht';
+    return $self->{tpin} if $pin eq 'tmp';
+    return $self->{hpin} if $pin eq 'hum';
+}
+sub _check_pin {
+    my ($self, $pin) = @_;
+    for ('tmp', 'hum'){
+        return 1 if $self->_pin($_);
+    }
+    return 0; 
+}
 
 1;
 __END__
@@ -72,47 +135,44 @@ warning LED.
 
 The Perl aspect makes it easy to send emails etc.
 
-This module requires the L<http://wiringpi.com/|wiringPi> library to be
+This module requires the L<wiringPi|http://wiringpi.com/> library to be
 installed.
 
-=head1 EXPORT_OK
+=head1 METHODS
 
-The C<:all> tag can be used to include all of the following, or they can be
-imported individually: C<temp>, C<humidity>, C<control> and C<cleanup>.
+=head2 new
 
-=head1 FUNCTIONS
+Parameters:
 
-=head2 temp($dht_pin)
+=head3 dht_pin
+
+Mandatory. Pin number for the DHT11 sensor's DATA pin (values are 0-40).
+
+=head3 tpin
+
+Optional. Pin number of a device to enable/disable. C<status()> and
+C<control()> won't do anything if this is not set.
+
+=head3 hpin
+
+Optional. Pin number of a device to enable/disable. C<status()> and
+C<control()> won't do anything if this is not set.
+
+=head2 temp
 
 Fetches the current temperature (in Farenheit).
-
-C<$dht_pin> is the pin number that is connected to the DHT11 sensor's data pin.
 
 Returns the temperature as either an integer or a floating point number. If any
 errors were encountered during the polling of the sensor, the return will be
 C<0.0>.
 
-C definition:
-    
-    float temp(int dht_pin);
-
-=head2 humidity($dht_pin)
+=head2 humidity
 
 Fetches the current humidity.
-
-Parameters:
-
-=head3 C<$dht_pin> 
-
-The pin number that is connected to the DHT11 sensor's data pin.
 
 Returns the humidity as either an integer or a floating point number. If any
 errors were encountered during the polling of the sensor, the return will be
 C<0.0>.
-
-C definition:
-    
-    float humidity(int dht_pin);
 
 =head2 status($pin)
 
@@ -124,10 +184,6 @@ The GPIO pin number to check.
 
 Returns the current status (bool) whether the specified pin is on (1, HIGH) or
 off (0, LOW).
-
-C definition:
-
-    bool status(int pin);
 
 =head2 control($pin, $state)
 
@@ -147,27 +203,9 @@ Bool, turns the pin on (HIGH) or off (LOW).
 Returns false (could be zero, undef or empty string) if the pin is in 'off'
 state, and true (1) otherwise.
 
-C definition:
-
-    bool control(int pin, int state);
-
-=head2 cleanup($dht_pin, $temp_pin, $humidity_pin)
+=head2 cleanup
 
 Returns all pins to their default status (mode = INPUT, state = LOW).
-
-Parameters:
-
-=head3 $dht_pin
-
-The pin connected to the DHT11 sensor's data pin. Mandatory.
-
-=head3 $temp_pin
-
-Pin connected to the temperature action pin. Send in C<-1> if it was not used.
-
-=head3 $humidity_pin
-
-Pin connected to the humidity action pin. Send in C<-1> if it was not used.
 
 =head1 C TYPEDEFS
 
@@ -180,11 +218,43 @@ Stores the temperature and humidity float values.
         float humidity;
     } EnvData;
 
-=head1 C PRIVATE DEFINITIONS
+=head1 C FUNCTIONS
+
+=head2 c_temp
+
+    float c_temp(int dht_pin);
+
+Called by the C<temp()> method.
+
+=head2 c_humidity
+
+    float c_humidity(int dht_pin);
+
+Called by the C<humidity()> method.
+
+=head2 c_status
+
+    bool c_status(int pin);
+
+Called by the C<status()> method.
+
+=head2 c_control
+
+    bool c_control(int pin, int state);
+
+Called by the C<control()> method.
+
+=head2 c_cleanup
+
+    int c_cleanup(int dht_pin, int tpin, int hpin);
+
+Called by the C<cleanup()> method, and is always called upon C<DESTROY()>.
 
 =head2 read_env()
 
     EnvData read_env(int dht_pin);
+
+Not available to Perl.
 
 Polls the pin a single time and returns an C<EnvData> struct containing the
 temp and humidity float values.
@@ -200,6 +270,8 @@ Checks whether the C<RDE_NOBOARD_TEST> environment variable is set to a true
 value. Returns true if so, and false if not. This bool is used for testing
 purposes only.
 
+Not available to Perl.
+
 =head2 sanity()
 
     void sanity();
@@ -208,9 +280,11 @@ If we're on a system that isn't a Raspberry Pi, things break. Every function
 calls this one, and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
 environment variable is set to true).
 
+Not available to Perl.
+
 =head1 SEE ALSO
 
-- L<http://wiringpi.com/|wiringPi>
+- L<wiringPi|http://wiringpi.com/>
 
 =head1 AUTHOR
 

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use RPi::DHT11::EnvControl qw(:all);
+use RPi::DHT11::EnvControl;
 use Test::More;
 
 use constant {
@@ -12,6 +12,11 @@ use constant {
     HUM => 5,
 };
 
+my $mod = 'RPi::DHT11::EnvControl';
+my $env = $mod->new(dht_pin => DHT);
+
+print $env->_check_pin(10);
+__END__
 if (! $ENV{RDE_HAS_BOARD}){
     $ENV{RDE_NOBOARD_TEST} = 1;
     my $state = control(TEMP, LOW);

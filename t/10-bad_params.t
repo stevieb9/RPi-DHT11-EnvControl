@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 
-use Hook::Output::Tiny;
-use RPi::DHT11::EnvControl qw(:all);
+use RPi::DHT11::EnvControl;
 use Test::More;
 
 use constant {
@@ -11,27 +10,20 @@ use constant {
     HUM => 5,
 };
 
-$ENV{RDE_NOBOARD_TEST} = 1;
+my $mod = 'RPi::DHT11::EnvControl';
 
-my $o = Hook::Output::Tiny->new;
+{ # bad params
 
-# temp
+    my $env;
 
-my $t = eval {temp(); 1};
-is $t, undef, "temp() fails with no params";
-like $@, qr/usage/i, "temp() err ok with no params";
+    my $ok = eval { $env = $mod->new; 1; };
+    ok ! $ok, "new() dies with no dht_pin param";
 
-$t = temp(DHT);
-is $t, 0, "temp() ok with param";
+    $ok = eval { $env = $mod->new(dht_pin => -1); 1; };
+    ok ! $ok, "new() dies with a dht < 0";
 
-# humidity
-
-my $h = eval {humidity(); 1};
-is $h, undef, "humidity() fails with no params";
-like $@, qr/usage/i, "humidity() err ok with no params";
-
-$h = humidity(DHT);
-is $h, 0, "humidity() ok with param";
+    $ok = eval { $env = $mod->new(dht_pin => 41); 1; };
+    ok ! $ok, "new() dies with a dht > 40";
+}
 
 done_testing();
-
