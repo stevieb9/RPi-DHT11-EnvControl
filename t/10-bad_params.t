@@ -17,12 +17,12 @@ my $mod = 'RPi::DHT11::EnvControl';
     my $env;
 
     my $ok = eval { $env = $mod->new; 1; };
-    ok ! $ok, "new() dies with no dht_pin param";
+    ok ! $ok, "new() dies with no spin param";
 
-    $ok = eval { $env = $mod->new(dht_pin => -1); 1; };
+    $ok = eval { $env = $mod->new(spin => -1); 1; };
     ok ! $ok, "new() dies with a dht < 0";
 
-    $ok = eval { $env = $mod->new(dht_pin => 41); 1; };
+    $ok = eval { $env = $mod->new(spin => 41); 1; };
     ok ! $ok, "new() dies with a dht > 40";
 }
 

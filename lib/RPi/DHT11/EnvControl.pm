@@ -15,15 +15,15 @@ sub new {
     my $class = shift;
     my %args = @_;
 
-    if (! defined $args{dht_pin} || $args{dht_pin} < 0 || $args{dht_pin} > 40){
-        croak "\nnew() requires at minimum the 'dht_pin' param, 0 - 40\n";
+    if (! defined $args{spin} || $args{spin} < 0 || $args{spin} > 40){
+        croak "\nnew() requires at minimum the 'spin' param, 0 - 40\n";
     }
 
     $args{tpin} = defined $args{tpin} 
         ? $args{tpin} 
         : -1;
 
-    $args{h_pin} = defined $args{hpin} 
+    $args{hpin} = defined $args{hpin} 
         ? $args{hpin}
         : -1;
 
@@ -64,14 +64,14 @@ sub DESTROY {
 sub _pin {
     # retrieve the various pins
     my ($self, $pin) = @_;
-    return $self->{dht_pin} if $pin eq 'dht';
-    return $self->{tpin} if $pin eq 'tmp';
-    return $self->{hpin} if $pin eq 'hum';
+    return $self->{spin} if $pin eq 'spin';
+    return $self->{tpin} if $pin eq 'tpin';
+    return $self->{hpin} if $pin eq 'hpin';
 }
 sub _check_pin {
     my ($self, $pin) = @_;
-    for ('tmp', 'hum'){
-        return 1 if $self->_pin($_);
+    for ('tpin', 'hpin'){
+        return 1 if $self->_pin($_) == $pin;
     }
     return 0; 
 }
@@ -144,7 +144,7 @@ installed.
 
 Parameters:
 
-=head3 dht_pin
+=head3 spin
 
 Mandatory. Pin number for the DHT11 sensor's DATA pin (values are 0-40).
 
@@ -222,13 +222,13 @@ Stores the temperature and humidity float values.
 
 =head2 c_temp
 
-    float c_temp(int dht_pin);
+    float c_temp(int spin);
 
 Called by the C<temp()> method.
 
 =head2 c_humidity
 
-    float c_humidity(int dht_pin);
+    float c_humidity(int spin);
 
 Called by the C<humidity()> method.
 
@@ -246,13 +246,13 @@ Called by the C<control()> method.
 
 =head2 c_cleanup
 
-    int c_cleanup(int dht_pin, int tpin, int hpin);
+    int c_cleanup(int spin, int tpin, int hpin);
 
 Called by the C<cleanup()> method, and is always called upon C<DESTROY()>.
 
 =head2 read_env()
 
-    EnvData read_env(int dht_pin);
+    EnvData read_env(int spin);
 
 Not available to Perl.
 

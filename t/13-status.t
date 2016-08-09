@@ -15,15 +15,20 @@ use constant {
 my $mod = 'RPi::DHT11::EnvControl';
 
 my $env = $mod->new(
-    dht_pin => DHT,
-    temp_pin => TEMP,
+    spin => DHT,
+    tpin => TEMP,
     humidity_pin => HUM,
 );
 
 if (! $ENV{RDE_HAS_BOARD}){
+    warn "RDE_HAS_BOARD is not set\n";
     $ENV{RDE_NOBOARD_TEST} = 1;
     my $state = $env->status(TEMP);
     is $state, '', "status() ok with noboard";
+
+    my $ok = eval { $env->status(39); 1; };
+    ok ! $ok, "croak if pin isn't registered";
+    ok $@, "error is set for non registered pin";
 }
 else {
     $env->control(TEMP, LOW);

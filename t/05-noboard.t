@@ -13,7 +13,7 @@ use constant {
 $ENV{RDE_NOBOARD_TEST} = 1;
 
 my $mod = 'RPi::DHT11::EnvControl';
-my $env = $mod->new(dht_pin => DHT);
+my $env = $mod->new(spin => DHT);
 
 # temp
 
