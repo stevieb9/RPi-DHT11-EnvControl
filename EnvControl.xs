@@ -20,8 +20,8 @@ typedef struct env_data {
 } EnvData;
 
 EnvData read_env(int dht_pin);
-float temp(int dht_pin, int temp_pin);
-float humidity(int dht_pin, int humidity_pin);
+float temp(int dht_pin);
+float humidity(int dht_pin);
 bool control(int pin, int state);
 bool noboard_test(); // unit testing with no RPi board
 void sanity();
@@ -90,29 +90,19 @@ EnvData read_env(int dht_pin){
     return env_data;
 }
 
-float temp(int dht_pin, int temp_pin){
+float temp(int dht_pin){
     // get & return temperature
 
     sanity();
-
-    if (temp_pin < 0 || temp_pin > 40){
-        printf("\ntemp_pin must be between 0 and 40\n");
-        exit(1);
-    }
     EnvData env_data;
     env_data = read_env(dht_pin);
     return env_data.temp;
 }
 
-float humidity(int dht_pin, int humidity_pin){
+float humidity(int dht_pin){
     // get & return humidity
 
     sanity();
-
-    if (humidity_pin < 0 || humidity_pin > 40){
-        printf("\nhumidity_pin must be between 0 and 40\n");
-        exit(1);
-    }
     EnvData env_data;
     env_data = read_env(dht_pin);
     return env_data.humidity;
@@ -183,14 +173,12 @@ MODULE = RPi::DHT11::EnvControl  PACKAGE = RPi::DHT11::EnvControl
 PROTOTYPES: DISABLE
 
 float
-temp (dht_pin, temp_pin)
+temp (dht_pin)
 	int	dht_pin
-	int	temp_pin
 
 float
-humidity (dht_pin, humidity_pin)
+humidity (dht_pin)
 	int	dht_pin
-	int	humidity_pin
 
 bool
 control (pin, state)

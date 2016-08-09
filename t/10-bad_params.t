@@ -17,23 +17,21 @@ my $o = Hook::Output::Tiny->new;
 
 # temp
 
-my $t = eval {temp(DHT); 1};
-is $t, undef, "temp() fails with no temp pin";
-like $@, qr/usage/i, "temp() err ok with no temp pin";
-
-$t = eval {temp(); 1};
+my $t = eval {temp(); 1};
 is $t, undef, "temp() fails with no params";
 like $@, qr/usage/i, "temp() err ok with no params";
 
+$t = temp(DHT);
+is $t, 0, "temp() ok with param";
+
 # humidity
 
-my $h = eval {humidity(DHT); 1};
-is $h, undef, "humidity() fails with no temp pin";
-like $@, qr/usage/i, "humidity() err ok with no temp pin";
-
-$h = eval {humidity(); 1};
+my $h = eval {humidity(); 1};
 is $h, undef, "humidity() fails with no params";
 like $@, qr/usage/i, "humidity() err ok with no params";
+
+$h = humidity(DHT);
+is $h, 0, "humidity() ok with param";
 
 done_testing();
 

@@ -12,9 +12,8 @@ use constant {
     HUM => 5,
 };
 
-#$ENV{RDE_NOBOARD_TEST} = 1;
-
-if ($ENV{RDE_NOBOARD_TEST}){
+if (! $ENV{RDE_HAS_BOARD}){
+    $ENV{RDE_NOBOARD_TEST} = 1;
     my $state = control(TEMP, LOW);
     is $state, '', "noboard control() with state == LOW ok";
     ok ! $state, "noboard control() with state == LOW ok";

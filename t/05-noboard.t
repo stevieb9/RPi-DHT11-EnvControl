@@ -16,12 +16,12 @@ my $mod = 'RPi::DHT11::EnvControl';
 
 # temp
 
-my $t = temp(DHT, TEMP);
+my $t = temp(DHT);
 is $t, 0, "temp ok with no board";
 
 # humidity
 
-my $h = humidity(DHT, HUM);
+my $h = humidity(DHT);
 is $h, 0, "humidity ok with no board";
 
 done_testing();

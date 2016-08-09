@@ -1,10 +1,10 @@
 Revision history for Perl extension RPi::DHT11::EnvControl.
 
 0.02    2016-08-09
-    - added temp(), humidity(), control(), cleanup() public functions
-    - added noboard_test() private function
-    - functionality for testing on a non Pi board implemented
-    - added initial test suite 
+        - added temp(), humidity(), control(), cleanup() public functions
+        - added noboard_test() private function
+        - functionality for testing on a non Pi board implemented
+        - added initial test suite 
 
 0.01  Tue Aug  9 07:25:40 2016
 	- original version; created by h2xs 1.23 with options
