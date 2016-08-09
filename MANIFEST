@@ -1,0 +1,10 @@
+Changes
+EnvControl.xs
+examples/temp.pl
+lib/RPi/DHT11/EnvControl.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+ppport.h
+README
+t/RPi-DHT11-EnvControl.t

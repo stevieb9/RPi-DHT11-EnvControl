@@ -1,0 +1,6 @@
+Revision history for Perl extension RPi::DHT11::EnvControl.
+
+0.01  Tue Aug  9 07:25:40 2016
+	- original version; created by h2xs 1.23 with options
+		-A -n RPi::DHT11::EnvControl
+
