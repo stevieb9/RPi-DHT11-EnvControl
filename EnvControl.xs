@@ -4,9 +4,14 @@
 
 #include <wiringPi.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#define false 0
+#define true 1
+
 #define MAXTIMINGS  85
 
 typedef struct env_data {
@@ -14,9 +19,15 @@ typedef struct env_data {
     float humidity;
 } EnvData;
 
+EnvData read_env(int dht_pin);
+float temp(int dht_pin, int temp_pin);
+float humidity(int dht_pin, int humidity_pin);
+bool control(int pin, int state);
+bool noboard_test(); // unit testing with no RPi board
+void sanity();
+
 EnvData read_env(int dht_pin){
-    if (wiringPiSetup() == -1)
-        exit(1);
+    sanity();
 
     int dht11_dat[5] = {0, 0, 0, 0, 0};
     
@@ -61,7 +72,7 @@ EnvData read_env(int dht_pin){
     EnvData env_data;
 
     if ((j >= 40) &&
-         (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF))){
+         (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF)) && ! noboard_test()){
         f = dht11_dat[2] * 9. / 5. + 32;
 
         env_data.temp = f;
@@ -82,6 +93,8 @@ EnvData read_env(int dht_pin){
 float temp(int dht_pin, int temp_pin){
     // get & return temperature
 
+    sanity();
+
     if (temp_pin < 0 || temp_pin > 40){
         printf("\ntemp_pin must be between 0 and 40\n");
         exit(1);
@@ -94,6 +107,8 @@ float temp(int dht_pin, int temp_pin){
 float humidity(int dht_pin, int humidity_pin){
     // get & return humidity
 
+    sanity();
+
     if (humidity_pin < 0 || humidity_pin > 40){
         printf("\nhumidity_pin must be between 0 and 40\n");
         exit(1);
@@ -103,8 +118,38 @@ float humidity(int dht_pin, int humidity_pin){
     return env_data.humidity;
 }
 
+bool control(int pin, int state){
+    // turn on/off the temp/humidity action pin
+   
+    sanity();
+     
+    bool ro = false;
+    if (state == -1)
+        ro = true;
+    else
+        state = (bool)state;
+
+    if (noboard_test()){
+        if (ro)
+            return true;
+        if (state)
+            return true;
+        else
+            return false;
+    }
+
+    if (ro)
+        return digitalRead(pin);
+
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, state);
+    return digitalRead(pin);
+}
+
 int cleanup(int dht_pin, int temp_pin, int humidity_pin){
     // reset the pins to default status
+
+    sanity();
 
     digitalWrite(dht_pin, LOW);
     pinMode(dht_pin, INPUT);
@@ -120,11 +165,22 @@ int cleanup(int dht_pin, int temp_pin, int humidity_pin){
     return(0);
 }
 
+bool noboard_test(){
+    if (atoi(getenv("RDE_NOBOARD_TEST")) == 1)
+        return true;
+    return false;
+}
+
+void sanity(){
+    if (! noboard_test()){
+        if (wiringPiSetup() == -1)
+            exit(1);
+    }
+}
 
 MODULE = RPi::DHT11::EnvControl  PACKAGE = RPi::DHT11::EnvControl
 
 PROTOTYPES: DISABLE
-
 
 float
 temp (dht_pin, temp_pin)
@@ -135,6 +191,11 @@ float
 humidity (dht_pin, humidity_pin)
 	int	dht_pin
 	int	humidity_pin
+
+bool
+control (pin, state)
+    int pin
+    int state
 
 int
 cleanup (dht_pin, temp_pin, humidity_pin)

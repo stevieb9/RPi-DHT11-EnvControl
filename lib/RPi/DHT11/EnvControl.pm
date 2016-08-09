@@ -6,11 +6,11 @@ use 5.018002;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 require Exporter;
 our @ISA = qw(Exporter);
-our %EXPORT_TAGS = ('all' => [qw(temp humidity)]);
+our %EXPORT_TAGS = ('all' => [qw(temp humidity cleanup control)]);
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 require XSLoader;
@@ -43,14 +43,10 @@ are reached. For example, if the temperature gets too high, we can enable a
 This module requires the L<http://wiringpi.com/|wiringPi> library to be
 installed.
 
-=head2 EXPORT
-
-None by default.
-
 =head2 EXPORT_OK
 
-You can import the C<temp> and C<humidity> functions, or use the C<:all> tag to
-import both of them.
+The C<:all> tag can be used to include all of the following, or they can be
+imported individually: C<temp>, C<humidity>, C<control> and C<cleanup>.
 
 =head1 SEE ALSO
 

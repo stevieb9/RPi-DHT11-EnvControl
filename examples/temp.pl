@@ -3,7 +3,7 @@ use strict;
 
 use feature 'say';
 
-use RPi::DHT11::EnvControl qw(:all);
+use RPi::DHT11::EnvControl;
 
 use constant {
     DHT => 4,
