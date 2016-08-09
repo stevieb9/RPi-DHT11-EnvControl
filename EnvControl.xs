@@ -3,8 +3,6 @@
 #include "XSUB.h"
 
 #include <wiringPi.h>
-#include <signal.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
