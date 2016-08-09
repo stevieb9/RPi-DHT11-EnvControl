@@ -3,11 +3,11 @@ package RPi::DHT11::EnvControl;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 require Exporter;
 our @ISA = qw(Exporter);
-our %EXPORT_TAGS = ('all' => [qw(temp humidity cleanup control)]);
+our %EXPORT_TAGS = ('all' => [qw(temp humidity cleanup status control)]);
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 require XSLoader;
@@ -23,19 +23,52 @@ when limits are reached
 
 =head1 SYNOPSIS
 
-  use RPi::DHT11::EnvControl;
+Basic usage example. You'd want to daemonize the script, or run it periodically
+in C<cron> or the like.
+
+    use RPi::DHT11::EnvControl qw(:all);
+
+    use constant {
+        SENSOR_PIN => 4,
+        FAN_PIN => 1,
+        HUMIDIFIER_PIN => 6,
+    };
+
+    my $high_temp = 79.8;
+    my $low_humidity = 22.5;
+
+    my $temp = temp(SENSOR_PIN);
+
+    if ($temp > $high_temp){
+        my $status = control(FAN_PIN);
+        print "exhaust fan turned on\n" if $status;
+    }
+
+    if ($humidity < $low_humidity){
+        my $status = control(HUMIDIFIER_PIN);
+        print "humidifier turned on\n" if $status;
+    }
+
+    my $fan_status = status(FAN_PIN) ? 'ON' : 'OFF';
+    my $humidifier_status = status(HUMIDIFIER_PIN) ? 'ON' : 'OFF';
+
+    print "Exhaust fan is $fan_status, humidifier is $humidifier_status\n";
 
 =head1 DESCRIPTION
 
 This module is an interface to the DHT11 temperature/humidity sensor when
-connected to a Raspberry Pi's GPIO pins.
+connected to a Raspberry Pi's GPIO pins. This is but one small piece of my
+indoor grow operation environment control system.
 
 Due to the near-realtime access requirements of reading the input pin of the
-sensor, the core of this module is written in C, converted to XS.
+sensor, the core of this module is written in XS (C).
 
 It allows you to set temperature and humidity limits, then act when the limits
 are reached. For example, if the temperature gets too high, we can enable a
-120/240v relay to turn on an exhaust fan for a time.
+120/240v relay to turn on an exhaust fan for a time, or enable/disable a
+warning LED.
+
+The Perl aspect makes it easy to send emails etc.
 
 This module requires the L<http://wiringpi.com/|wiringPi> library to be
 installed.
@@ -79,6 +112,21 @@ C definition:
     
     float humidity(int dht_pin);
 
+=head2 status($pin)
+
+Parameters:
+
+=head3 $pin
+
+The GPIO pin number to check.
+
+Returns the current status (bool) whether the specified pin is on (1, HIGH) or
+off (0, LOW).
+
+C definition:
+
+    bool status(int pin);
+
 =head2 control($pin, $state)
 
 Enables the enabling and/or disabling of devices connected to specified
@@ -92,8 +140,7 @@ The GPIO pin number to act on.
 
 =head3 C<$state>
 
-Bool, turns the pin on (HIGH) or off (LOW). If C<-1> is sent in, we'll take no
-action, we'll simply return the current state of the pin as-is.
+Bool, turns the pin on (HIGH) or off (LOW).
 
 Returns false (could be zero, undef or empty string) if the pin is in 'off'
 state, and true (1) otherwise.

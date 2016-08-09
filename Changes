@@ -1,5 +1,9 @@
 Revision history for Perl extension RPi::DHT11::EnvControl.
 
+0.03    2016-08-09
+        - added status() which checks the status of a GPIO pin, and removed
+          that functionality from control()
+
 0.02    2016-08-09
         - added temp(), humidity(), control(), cleanup() public functions
         - added noboard_test() private function

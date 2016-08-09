@@ -22,6 +22,7 @@ typedef struct env_data {
 EnvData read_env(int dht_pin);
 float temp(int dht_pin);
 float humidity(int dht_pin);
+bool status(int pin);
 bool control(int pin, int state);
 bool noboard_test(); // unit testing with no RPi board
 void sanity();
@@ -108,28 +109,24 @@ float humidity(int dht_pin){
     return env_data.humidity;
 }
 
+bool status(int pin){
+    // get the status of a pin
+
+    sanity();
+    return digitalRead(pin);
+}
+
 bool control(int pin, int state){
     // turn on/off the temp/humidity action pin
    
     sanity();
      
-    bool ro = false;
-    if (state == -1)
-        ro = true;
-    else
-        state = (bool)state;
-
     if (noboard_test()){
-        if (ro)
-            return true;
         if (state)
             return true;
         else
             return false;
     }
-
-    if (ro)
-        return digitalRead(pin);
 
     pinMode(pin, OUTPUT);
     digitalWrite(pin, state);
@@ -179,6 +176,10 @@ temp (dht_pin)
 float
 humidity (dht_pin)
 	int	dht_pin
+
+bool
+status (pin)
+    int pin
 
 bool
 control (pin, state)

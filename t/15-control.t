@@ -21,8 +21,6 @@ if (! $ENV{RDE_HAS_BOARD}){
     $state = control(TEMP, HIGH);
     is $state, 1, "noboard control() with state == HIGH ok";
 
-    $state = control(TEMP, -1);
-    is $state, 1, "noboard control() with no state param ok";
 }
 else {
     my $state = control(TEMP, LOW);
@@ -32,13 +30,10 @@ else {
     $state = control(TEMP, HIGH);
     is $state, '', "control() with state == HIGH ok";
     ok ! $state, "control() with state == LOW ok";
-
-    $state = control(TEMP, -1);
-    is $state, 1, "control() with no state param and HIGH ok";
-
+    
     control(TEMP, LOW);
 
-    $state = control(TEMP, -1);
+    $state = status(TEMP);
     is $state, 1, "control() with no state param and LOW ok";
 }
 
