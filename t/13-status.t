@@ -18,6 +18,7 @@ my $env = $mod->new(
     spin => DHT,
     tpin => TEMP,
     humidity_pin => HUM,
+    debug => 1,
 );
 
 if (! $ENV{RDE_HAS_BOARD}){

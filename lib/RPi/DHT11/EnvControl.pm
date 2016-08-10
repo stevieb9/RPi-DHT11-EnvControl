@@ -27,15 +27,23 @@ sub new {
         ? $args{hpin}
         : -1;
 
-    return bless {%args}, $class;
+    my $self = bless {%args}, $class;
+
+    sanity();
+
+    return $self;
+}
+sub debug {
+    return shift->{debug};
 }
 sub temp {
     my $self = shift;
-    return c_temp($self->_pin('dht'));
+    my $temp = c_temp($self->_pin('spin'));
+    return sprintf "%.2f", $temp;
 }
 sub humidity {
     my $self = shift;
-    return c_humidity($self->_pin('hum'));
+    return c_humidity($self->_pin('spin'));
 }
 sub status {
     my ($self, $pin) = @_;
@@ -52,14 +60,16 @@ sub control {
 sub cleanup {
     my $self = shift;
     return c_cleanup(
-        $self->_pin('dht'),
-        $self->_pin('tmp'),
-        $self->_pin('hum')
+        $self->_pin('spin'),
+        $self->_pin('tpin'),
+        $self->_pin('hpin')
     );
 }
 sub DESTROY {
     my $self = shift;
-    $self->cleanup;
+    if ($self->debug){
+        $self->cleanup;
+    }
 }
 sub _pin {
     # retrieve the various pins
@@ -89,35 +99,50 @@ when limits are reached
 Basic usage example. You'd want to daemonize the script, or run it periodically
 in C<cron> or the like.
 
-    use RPi::DHT11::EnvControl qw(:all);
+    use RPi::DHT11::EnvControl;
 
     use constant {
-        SENSOR_PIN => 4,
-        FAN_PIN => 1,
-        HUMIDIFIER_PIN => 6,
+        DHT_PIN => 4,
+        TEMP_PIN => 1,
+        HUMIDITY_PIN => 5,
+        ON => 1,
+        OFF => 0,
     };
 
-    my $high_temp = 79.8;
-    my $low_humidity = 22.5;
+    my $temp_high = 72.8;
+    my $humidity_low = 25.4;
 
-    my $temp = temp(SENSOR_PIN);
+    my $env = RPi::DHT11::EnvControl->new(
+        spin => DHT_PIN,
+        tpin => TEMP_PIN,
+        hpin => HUMIDITY_PIN,
+    );
 
-    if ($temp > $high_temp){
-        my $status = control(FAN_PIN);
-        print "exhaust fan turned on\n" if $status;
+    my $temp = $env->temp;
+    my $humidity = $env->humidity;
+
+    print "temp: $temp, humidity: $humidity\n";
+
+    # action something if results are out of range
+
+    if ($temp > $temp_high){
+        if (! $env->status(TEMP_PIN)){
+            $env->control(TEMP_PIN, ON);
+            print "turning on exhaust fan\n";
+        }
+    }
+    else {
+        if ($env->status(TEMP_PIN)){
+            $env->control(TEMP_PIN, OFF);
+            print "exhaust fan turned off\n";
+        } 
     }
 
-    if ($humidity < $low_humidity){
-        my $status = control(HUMIDIFIER_PIN);
-        print "humidifier turned on\n" if $status;
+    # humidity
+        
+    if ($humidity < $humidity_low){
+        ...
     }
-
-    my $fan_status = status(FAN_PIN) ? 'ON' : 'OFF';
-    my $humidifier_status = status(HUMIDIFIER_PIN) ? 'ON' : 'OFF';
-
-    print "Exhaust fan is $fan_status, humidifier is $humidifier_status\n";
-
-    cleanup(SENSOR_PIN, FAN_PIN, HUMIDIFIER_PIN);
 
 =head1 DESCRIPTION
 
@@ -164,7 +189,7 @@ Fetches the current temperature (in Farenheit).
 
 Returns the temperature as either an integer or a floating point number. If any
 errors were encountered during the polling of the sensor, the return will be
-C<0.0>.
+C<0>.
 
 =head2 humidity
 
@@ -172,7 +197,7 @@ Fetches the current humidity.
 
 Returns the humidity as either an integer or a floating point number. If any
 errors were encountered during the polling of the sensor, the return will be
-C<0.0>.
+C<0>.
 
 =head2 status($pin)
 
@@ -280,7 +305,7 @@ If we're on a system that isn't a Raspberry Pi, things break. Every function
 calls this one, and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
 environment variable is set to true).
 
-Not available to Perl.
+Called only from the C<new()> method.
 
 =head1 SEE ALSO
 

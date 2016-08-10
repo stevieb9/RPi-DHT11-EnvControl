@@ -3,6 +3,7 @@ Revision history for Perl extension RPi::DHT11::EnvControl.
 0.04    2016-08-09
         - moved from functional interface to OO for keeping state and
           better error management
+        - temp() now returns a 2 point float
 
 0.03    2016-08-09
         - added status() which checks the status of a GPIO pin, and removed

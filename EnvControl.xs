@@ -25,11 +25,9 @@ bool c_control(int pin, int state);
 int c_cleanup(int dht_pin, int temp_pin, int humidity_pin);
 
 bool noboard_test(); // unit testing with no RPi board
-void sanity();
+bool sanity();
 
 EnvData read_env(int dht_pin){
-    sanity();
-
     int dht11_dat[5] = {0, 0, 0, 0, 0};
     
     uint8_t laststate = HIGH;
@@ -71,9 +69,10 @@ EnvData read_env(int dht_pin){
     }
 
     EnvData env_data;
-
+    
     if ((j >= 40) &&
-         (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF)) && ! noboard_test()){
+         (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF))){
+
         f = dht11_dat[2] * 9. / 5. + 32;
 
         env_data.temp = f;
@@ -94,17 +93,34 @@ EnvData read_env(int dht_pin){
 float c_temp(int dht_pin){
     // get & return temperature
 
-    sanity();
+    if (noboard_test())
+        return 0.0;
+
     EnvData env_data;
-    env_data = read_env(dht_pin);
+    float data = 0;
+
+    while (data == 0){
+        env_data = read_env(dht_pin);
+        data = env_data.temp;
+    }
     return env_data.temp;
 }
 
 float c_humidity(int dht_pin){
     // get & return humidity
 
-    sanity();
+    if (noboard_test())
+        return 0.0;
+
     EnvData env_data;
+    float data = 0;
+
+    while (data == 0){
+        env_data = read_env(dht_pin);
+        data = env_data.humidity;
+    }
+    return env_data.humidity;
+
     env_data = read_env(dht_pin);
     return env_data.humidity;
 }
@@ -112,14 +128,11 @@ float c_humidity(int dht_pin){
 bool c_status(int pin){
     // get the status of a pin
 
-    sanity();
     return digitalRead(pin);
 }
 
 bool c_control(int pin, int state){
     // turn on/off the temp/humidity action pin
-   
-    sanity();
      
     if (noboard_test()){
         if (state)
@@ -136,8 +149,6 @@ bool c_control(int pin, int state){
 int c_cleanup(int dht_pin, int temp_pin, int humidity_pin){
     // reset the pins to default status
 
-    sanity();
-
     digitalWrite(dht_pin, LOW);
     pinMode(dht_pin, INPUT);
 
@@ -153,16 +164,17 @@ int c_cleanup(int dht_pin, int temp_pin, int humidity_pin){
 }
 
 bool noboard_test(){
-    if (atoi(getenv("RDE_NOBOARD_TEST")) == 1)
+    if (getenv("RDE_NOBOARD_TEST") && atoi(getenv("RDE_NOBOARD_TEST")) == 1)
         return true;
     return false;
 }
 
-void sanity(){
+bool sanity(){
     if (! noboard_test()){
         if (wiringPiSetup() == -1)
             exit(1);
     }
+    return true;
 }
 
 MODULE = RPi::DHT11::EnvControl  PACKAGE = RPi::DHT11::EnvControl
@@ -192,3 +204,5 @@ c_cleanup (dht_pin, temp_pin, humidity_pin)
 	int	temp_pin
 	int	humidity_pin
 
+bool
+sanity()

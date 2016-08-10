@@ -1,7 +1,6 @@
 *.bs
 *.c
 *.o
-*.sh
 Makefile
 *~
 *.bak

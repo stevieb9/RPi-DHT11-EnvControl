@@ -13,7 +13,7 @@ use constant {
 };
 
 my $mod = 'RPi::DHT11::EnvControl';
-my $env = $mod->new(spin => DHT, tpin => TEMP, hpin => HUM);
+my $env = $mod->new(spin => DHT, tpin => TEMP, hpin => HUM, debug => 1);
 
 if (! $ENV{RDE_HAS_BOARD}){
     warn "RDE_HAS_BOARD is not set\n";
@@ -35,13 +35,12 @@ else {
     ok ! $state, "control() with state == LOW ok";
 
     $state = $env->control(TEMP, HIGH);
-    is $state, '', "control() with state == HIGH ok";
-    ok ! $state, "control() with state == LOW ok";
+    is $state, 1, "control() with state == HIGH ok";
     
     $env->control(TEMP, LOW);
 
     $state = $env->status(TEMP);
-    is $state, 1, "control() with no state param and LOW ok";
+    is $state, '', "control() with LOW ok";
 
     my $ok = eval { $state = $env->control(39, HIGH); 1; };
     ok ! $ok, "control() with bad pin dies";

@@ -33,3 +33,4 @@ build/
 ^\w+.list$
 .bblog$
 .base$
+build.sh$
