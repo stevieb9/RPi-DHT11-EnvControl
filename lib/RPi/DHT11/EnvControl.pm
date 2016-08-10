@@ -287,8 +287,8 @@ unless C<debug> is set in C<new()>.
 
 Not available to Perl.
 
-Polls the pin a single time and returns an C<EnvData> struct containing the
-temp and humidity float values.
+Polls the pin in a loop until valid data is fetched, then  returns an C<EnvData>
+struct containing the temp and humidity float values.
 
 If for any reason the poll of the DHT11 sensor fails (eg: the CRC is incorrect
 for the data), both C<temp> and C<humidity> floats will be set to C<0.0>.
@@ -307,11 +307,25 @@ Not available to Perl.
 
     void sanity();
 
-If we're on a system that isn't a Raspberry Pi, things break. Every function
-calls this one, and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
+If we're on a system that isn't a Raspberry Pi, things break. We call this in
+C<new(), and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
 environment variable is set to true).
 
 Called only from the C<new()> method.
+
+=head1 ENVIRONMENT VARIABLES
+
+There are a couple of env vars to help prototype and run unit tests when not on
+a RPi board.
+
+=head2 RDE_HAS_BOARD
+
+Set to C<1> to tell the unit test runner that we're on a Pi.
+
+=head2 RDE_NOBOARD_TEST
+
+Set to C<1> to tell the system we're not on a Pi. Most methods/functions will
+return default (ie. non-live) data when in this mode.
 
 =head1 SEE ALSO
 

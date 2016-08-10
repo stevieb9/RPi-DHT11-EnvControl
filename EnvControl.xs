@@ -120,9 +120,6 @@ float c_humidity(int dht_pin){
         data = env_data.humidity;
     }
     return env_data.humidity;
-
-    env_data = read_env(dht_pin);
-    return env_data.humidity;
 }
 
 bool c_status(int pin){

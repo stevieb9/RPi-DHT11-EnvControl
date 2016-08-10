@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::DHT11::EnvControl.
 
+0.06 UNRELEASED 
+        - POD updates
+
 0.05    2016-08-09
         - added test files to MANIFEST
         - updated examples/synopsis.pl with complete working example
