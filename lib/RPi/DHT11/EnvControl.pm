@@ -161,7 +161,8 @@ warning LED.
 The Perl aspect makes it easy to send emails etc.
 
 This module requires the L<wiringPi|http://wiringpi.com/> library to be
-installed.
+installed, and uses WiringPi's GPIO pin numbering scheme (see C<gpio readall>
+at the command line).
 
 =head1 METHODS
 
