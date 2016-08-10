@@ -183,6 +183,11 @@ C<control()> won't do anything if this is not set.
 Optional. Pin number of a device to enable/disable. C<status()> and
 C<control()> won't do anything if this is not set.
 
+=head3 debug
+
+Optional. If set to true (1), we'll reset all the pins to default (mode INPUT,
+state LOW) when the object goes out of scope.
+
 =head2 temp
 
 Fetches the current temperature (in Farenheit).
@@ -273,7 +278,8 @@ Called by the C<control()> method.
 
     int c_cleanup(int spin, int tpin, int hpin);
 
-Called by the C<cleanup()> method, and is always called upon C<DESTROY()>.
+Called by the C<cleanup()> method, and is always called upon C<DESTROY()>,
+unless C<debug> is set in C<new()>.
 
 =head2 read_env()
 
