@@ -128,6 +128,9 @@ float c_humidity(int dht_pin){
 bool c_status(int pin){
     // get the status of a pin
 
+    if (noboard_test())
+        return false;
+
     return digitalRead(pin);
 }
 

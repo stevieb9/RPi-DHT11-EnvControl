@@ -14,16 +14,12 @@ use constant {
 
 my $mod = 'RPi::DHT11::EnvControl';
 
-my $env = $mod->new(
-    spin => DHT,
-    tpin => TEMP,
-    humidity_pin => HUM,
-    debug => 1,
-);
-
 if (! $ENV{RDE_HAS_BOARD}){
     warn "RDE_HAS_BOARD is not set\n";
     $ENV{RDE_NOBOARD_TEST} = 1;
+
+    my $env = env();
+
     my $state = $env->status(TEMP);
     is $state, '', "status() ok with noboard";
 
@@ -32,6 +28,8 @@ if (! $ENV{RDE_HAS_BOARD}){
     ok $@, "error is set for non registered pin";
 }
 else {
+    my $env = env();
+    
     $env->control(TEMP, LOW);
     
     my $state = $env->status(TEMP);
@@ -42,6 +40,16 @@ else {
 
     $state = $env->status(TEMP);
     is $state, 1, "status() ok on HIGH";
+}
+
+sub env {
+    my $env = $mod->new(
+        spin => DHT,
+        tpin => TEMP,
+        humidity_pin => HUM,
+        debug => 1,
+    );
+    return $env;
 }
 
 done_testing();
