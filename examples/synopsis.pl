@@ -12,7 +12,7 @@ use constant {
 };
 
 my $temp_high = 79.5;
-my $humidity_low = 22.5
+my $humidity_low = 20;
 
 my $env = RPi::DHT11::EnvControl->new(
     spin => DHT_PIN,
@@ -44,5 +44,14 @@ else {
 # humidity
     
 if ($humidity < $humidity_low){
-    ...
+    if (! $env->status(HUMIDITY_PIN)){
+        $env->control(HUMIDITY_PIN, ON);
+        print "turning on humidifier\n";
+    }
+}
+else {
+    if ($env->status(HUMIDITY_PIN)){
+        $env->control(HUMIDITY_PIN, OFF);
+        print "humidifier turned off\n";
+    } 
 }

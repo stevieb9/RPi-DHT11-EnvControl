@@ -25,7 +25,6 @@ pm_to_blib$
 .git/
 .debug$
 .gitignore$
-^\w+.pl$
 .ignore.txt$
 .travis.yml$
 .iml$

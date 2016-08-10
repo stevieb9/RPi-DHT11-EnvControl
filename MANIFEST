@@ -1,8 +1,14 @@
 Changes
 EnvControl.xs
+examples/synopsis.pl
 lib/RPi/DHT11/EnvControl.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 ppport.h
 README
+t/00-load.t
+t/05-noboard.t
+t/10-bad_params.t
+t/13-status.t
+t/15-control.t
