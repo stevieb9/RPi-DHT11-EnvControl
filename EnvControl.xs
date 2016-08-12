@@ -13,13 +13,13 @@
 #define MAXTIMINGS  85
 
 typedef struct env_data {
-    float temp;
-    float humidity;
+    int temp;
+    int humidity;
 } EnvData;
 
 EnvData read_env(int dht_pin);
-float c_temp(int dht_pin);
-float c_humidity(int dht_pin);
+int c_temp(int dht_pin);
+int c_humidity(int dht_pin);
 bool c_status(int pin);
 bool c_control(int pin, int state);
 int c_cleanup(int dht_pin, int temp_pin, int humidity_pin);
@@ -33,7 +33,6 @@ EnvData read_env(int dht_pin){
     uint8_t laststate = HIGH;
     uint8_t counter = 0;
     uint8_t j = 0, i;
-    float f; /* fahrenheit */
 
     dht11_dat[0] = dht11_dat[1] = dht11_dat[2] = dht11_dat[3] = dht11_dat[4] = 0;
     
@@ -73,49 +72,45 @@ EnvData read_env(int dht_pin){
     if ((j >= 40) &&
          (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF))){
 
-        f = dht11_dat[2] * 9. / 5. + 32;
+        int t = dht11_dat[0];
+        int h = dht11_dat[2];
 
-        env_data.temp = f;
-        env_data.humidity = (float)dht11_dat[0];
-
-        /*
-         * printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-         * dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
-         */
+        env_data.temp = t;
+        env_data.humidity = h;
     }
     else {
-        env_data.temp = 0.0;
-        env_data.humidity = 0.0;
+        env_data.temp = -1;
+        env_data.humidity = -1;
     }
     return env_data;
 }
 
-float c_temp(int dht_pin){
+int c_temp(int dht_pin){
     // get & return temperature
 
     if (noboard_test())
-        return 0.0;
+        return 0;
 
     EnvData env_data;
-    float data = 0;
+    int data = -1;
 
-    while (data == 0){
+    while (data == -1){
         env_data = read_env(dht_pin);
         data = env_data.temp;
     }
     return env_data.temp;
 }
 
-float c_humidity(int dht_pin){
+int c_humidity(int dht_pin){
     // get & return humidity
 
     if (noboard_test())
-        return 0.0;
+        return 0;
 
     EnvData env_data;
-    float data = 0;
+    int data = 0;
 
-    while (data == 0){
+    while (data == -1){
         env_data = read_env(dht_pin);
         data = env_data.humidity;
     }
@@ -181,11 +176,11 @@ MODULE = RPi::DHT11::EnvControl  PACKAGE = RPi::DHT11::EnvControl
 
 PROTOTYPES: DISABLE
 
-float
+int
 c_temp (dht_pin)
 	int	dht_pin
 
-float
+int
 c_humidity (dht_pin)
 	int	dht_pin
 

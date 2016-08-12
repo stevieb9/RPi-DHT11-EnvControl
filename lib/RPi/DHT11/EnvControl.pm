@@ -37,9 +37,13 @@ sub debug {
     return shift->{debug};
 }
 sub temp {
-    my $self = shift;
+    my ($self, $want) = @_;
     my $temp = c_temp($self->_pin('spin'));
-    return sprintf "%.2f", $temp;
+
+    if ($want =~ /f/i){
+        $temp = $temp * 9 / 5 + 32;
+    }
+    return $temp;
 }
 sub humidity {
     my $self = shift;
@@ -109,8 +113,8 @@ in C<cron> or the like.
         OFF => 0,
     };
 
-    my $temp_high = 72.8;
-    my $humidity_low = 25.4;
+    my $temp_high = 72;
+    my $humidity_low = 25;
 
     my $env = RPi::DHT11::EnvControl->new(
         spin => DHT_PIN,
@@ -166,7 +170,7 @@ at the command line).
 
 =head1 METHODS
 
-=head2 new
+=head2 new()
 
 Parameters:
 
@@ -189,21 +193,25 @@ C<control()> won't do anything if this is not set.
 Optional. If set to true (1), we'll reset all the pins to default (mode INPUT,
 state LOW) when the object goes out of scope.
 
-=head2 temp
+=head2 temp($f)
 
-Fetches the current temperature (in Farenheit).
+Fetches the current temperature (in Celcius).
 
-Returns the temperature as either an integer or a floating point number. If any
-errors were encountered during the polling of the sensor, the return will be
-C<0>.
+Returns an integer of the temperature, in celcius by default.
+
+Parameters:
+
+=head3 $f
+
+Send in the string char C<'f'> to receive the temp in Farenheit.
+
+Send in
 
 =head2 humidity
 
 Fetches the current humidity.
 
-Returns the humidity as either an integer or a floating point number. If any
-errors were encountered during the polling of the sensor, the return will be
-C<0>.
+Returns the humidity as either an integer of the current humidity level.
 
 =head2 status($pin)
 

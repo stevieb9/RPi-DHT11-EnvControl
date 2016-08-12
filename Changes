@@ -1,7 +1,12 @@
 Revision history for Perl extension RPi::DHT11::EnvControl.
 
-0.06 UNRELEASED 
+0.06    2016-08-12
         - POD updates
+        - c_temp() now returns an int for both temperature and humidity. The
+          temperature is returned as Celcius
+        - if 'f' is sent in as a single param to Perl's temp() function, it'll
+          return the temp in Farenheit. Otherwise, by default, we return
+          Celcius
 
 0.05    2016-08-09
         - added test files to MANIFEST

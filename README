@@ -1,0 +1,273 @@
+NAME
+
+    RPi::DHT11::EnvControl - Monitor environment temperature/humidity, and
+    act when limits are reached
+
+SYNOPSIS
+
+    Basic usage example. You'd want to daemonize the script, or run it
+    periodically in cron or the like.
+
+        use RPi::DHT11::EnvControl;
+    
+        use constant {
+            DHT_PIN => 4,
+            TEMP_PIN => 1,
+            HUMIDITY_PIN => 5,
+            ON => 1,
+            OFF => 0,
+        };
+    
+        my $temp_high = 72;
+        my $humidity_low = 25;
+    
+        my $env = RPi::DHT11::EnvControl->new(
+            spin => DHT_PIN,
+            tpin => TEMP_PIN,
+            hpin => HUMIDITY_PIN,
+        );
+    
+        my $temp = $env->temp;
+        my $humidity = $env->humidity;
+    
+        print "temp: $temp, humidity: $humidity\n";
+    
+        # action something if results are out of range
+    
+        if ($temp > $temp_high){
+            if (! $env->status(TEMP_PIN)){
+                $env->control(TEMP_PIN, ON);
+                print "turning on exhaust fan\n";
+            }
+        }
+        else {
+            if ($env->status(TEMP_PIN)){
+                $env->control(TEMP_PIN, OFF);
+                print "exhaust fan turned off\n";
+            } 
+        }
+    
+        # humidity
+            
+        if ($humidity < $humidity_low){
+            ...
+        }
+
+DESCRIPTION
+
+    This module is an interface to the DHT11 temperature/humidity sensor
+    when connected to a Raspberry Pi's GPIO pins. This is but one small
+    piece of my indoor grow operation environment control system.
+
+    Due to the near-realtime access requirements of reading the input pin
+    of the sensor, the core of this module is written in XS (C).
+
+    It allows you to set temperature and humidity limits, then act when the
+    limits are reached. For example, if the temperature gets too high, we
+    can enable a 120/240v relay to turn on an exhaust fan for a time, or
+    enable/disable a warning LED.
+
+    The Perl aspect makes it easy to send emails etc.
+
+    This module requires the wiringPi <http://wiringpi.com/> library to be
+    installed, and uses WiringPi's GPIO pin numbering scheme (see gpio
+    readall at the command line).
+
+METHODS
+
+ new()
+
+    Parameters:
+
+  spin
+
+    Mandatory. Pin number for the DHT11 sensor's DATA pin (values are
+    0-40).
+
+  tpin
+
+    Optional. Pin number of a device to enable/disable. status() and
+    control() won't do anything if this is not set.
+
+  hpin
+
+    Optional. Pin number of a device to enable/disable. status() and
+    control() won't do anything if this is not set.
+
+  debug
+
+    Optional. If set to true (1), we'll reset all the pins to default (mode
+    INPUT, state LOW) when the object goes out of scope.
+
+ temp($f)
+
+    Fetches the current temperature (in Celcius).
+
+    Returns an integer of the temperature, in celcius by default.
+
+    Parameters:
+
+  $f
+
+    Send in the string char 'f' to receive the temp in Farenheit.
+
+    Send in
+
+ humidity
+
+    Fetches the current humidity.
+
+    Returns the humidity as either an integer of the current humidity
+    level.
+
+ status($pin)
+
+    Parameters:
+
+  $pin
+
+    The GPIO pin number to check.
+
+    Returns the current status (bool) whether the specified pin is on (1,
+    HIGH) or off (0, LOW).
+
+ control($pin, $state)
+
+    Enables the enabling and/or disabling of devices connected to specified
+    Raspberry Pi GPIO pins.
+
+    Parameters:
+
+  $pin
+
+    The GPIO pin number to act on.
+
+  $state
+
+    Bool, turns the pin on (HIGH) or off (LOW).
+
+    Returns false (could be zero, undef or empty string) if the pin is in
+    'off' state, and true (1) otherwise.
+
+ cleanup
+
+    Returns all pins to their default status (mode = INPUT, state = LOW).
+
+C TYPEDEFS
+
+ EnvData
+
+    Stores the temperature and humidity float values.
+
+        typedef struct env_data {
+            float temp;
+            float humidity;
+        } EnvData;
+
+C FUNCTIONS
+
+ c_temp
+
+        float c_temp(int spin);
+
+    Called by the temp() method.
+
+ c_humidity
+
+        float c_humidity(int spin);
+
+    Called by the humidity() method.
+
+ c_status
+
+        bool c_status(int pin);
+
+    Called by the status() method.
+
+ c_control
+
+        bool c_control(int pin, int state);
+
+    Called by the control() method.
+
+ c_cleanup
+
+        int c_cleanup(int spin, int tpin, int hpin);
+
+    Called by the cleanup() method, and is always called upon DESTROY(),
+    unless debug is set in new().
+
+ read_env()
+
+        EnvData read_env(int spin);
+
+    Not available to Perl.
+
+    Polls the pin in a loop until valid data is fetched, then returns an
+    EnvData struct containing the temp and humidity float values.
+
+    If for any reason the poll of the DHT11 sensor fails (eg: the CRC is
+    incorrect for the data), both temp and humidity floats will be set to
+    0.0.
+
+ noboard_test()
+
+        bool noboard_test();
+
+    Checks whether the RDE_NOBOARD_TEST environment variable is set to a
+    true value. Returns true if so, and false if not. This bool is used for
+    testing purposes only.
+
+    Not available to Perl.
+
+ sanity()
+
+        void sanity();
+
+    If we're on a system that isn't a Raspberry Pi, things break. We call
+    this in new(), and if sanity checks fail, we exit (unless in
+    RDE_NOBOARD_TEST environment variable is set to true).
+
+    Called only from the new() method.
+
+ENVIRONMENT VARIABLES
+
+    There are a couple of env vars to help prototype and run unit tests
+    when not on a RPi board.
+
+ RDE_HAS_BOARD
+
+    Set to 1 to tell the unit test runner that we're on a Pi.
+
+ RDE_NOBOARD_TEST
+
+    Set to 1 to tell the system we're not on a Pi. Most methods/functions
+    will return default (ie. non-live) data when in this mode.
+
+SEE ALSO
+
+    - wiringPi <http://wiringpi.com/>
+
+AUTHOR
+
+    Steve Bertrand, <steveb@cpan.org<gt>
+
+LICENSE AND COPYRIGHT
+
+    Copyright 2016 Steve Bertrand.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
+POD ERRORS
+
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 224:
+
+      Unterminated C<...> sequence
+
