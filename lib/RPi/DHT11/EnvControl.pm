@@ -300,7 +300,7 @@ Polls the pin in a loop until valid data is fetched, then  returns an C<EnvData>
 struct containing the temp and humidity float values.
 
 If for any reason the poll of the DHT11 sensor fails (eg: the CRC is incorrect
-for the data), both C<temp> and C<humidity> floats will be set to C<0.0>.
+for the data), both C<temp> and C<humidity> C<-1>.
 
 =head2 noboard_test()
 
@@ -317,7 +317,7 @@ Not available to Perl.
     void sanity();
 
 If we're on a system that isn't a Raspberry Pi, things break. We call this in
-C<new(), and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
+C<new()>, and if sanity checks fail, we exit (unless in RDE_NOBOARD_TEST
 environment variable is set to true).
 
 Called only from the C<new()> method.
