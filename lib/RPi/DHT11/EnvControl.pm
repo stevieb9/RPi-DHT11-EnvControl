@@ -40,7 +40,7 @@ sub temp {
     my ($self, $want) = @_;
     my $temp = c_temp($self->_pin('spin'));
 
-    if ($want =~ /f/i){
+    if (defined $want && $want =~ /f/i){
         $temp = $temp * 9 / 5 + 32;
     }
     return $temp;
