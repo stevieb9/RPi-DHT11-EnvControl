@@ -7,6 +7,7 @@ Revision history for Perl extension RPi::DHT11::EnvControl.
         - if 'f' is sent in as a single param to Perl's temp() function, it'll
           return the temp in Farenheit. Otherwise, by default, we return
           Celcius
+        - changed return type of temp() and humidity() to be ints
 
 0.05    2016-08-09
         - added test files to MANIFEST
