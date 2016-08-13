@@ -72,8 +72,11 @@ EnvData read_env(int dht_pin){
     if ((j >= 40) &&
          (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF))){
 
-        int t = dht11_dat[0];
-        int h = dht11_dat[2];
+         // printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
+         //       dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+
+        int t = dht11_dat[2];
+        int h = dht11_dat[0];
 
         env_data.temp = t;
         env_data.humidity = h;
@@ -108,7 +111,7 @@ int c_humidity(int dht_pin){
         return 0;
 
     EnvData env_data;
-    int data = 0;
+    int data = -1;
 
     while (data == -1){
         env_data = read_env(dht_pin);

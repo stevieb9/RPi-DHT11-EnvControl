@@ -43,7 +43,7 @@ sub temp {
     if (defined $want && $want =~ /f/i){
         $temp = $temp * 9 / 5 + 32;
     }
-    return $temp;
+    return int($temp + 0.5);
 }
 sub humidity {
     my $self = shift;

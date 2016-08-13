@@ -29,6 +29,7 @@ my $env = RPi::DHT11::EnvControl->new(
 
 my $pi = RPi::WiringPi->new(
     fatal_exit => 0,
+    setup => 'none',
 );
 
 my $lcd = $pi->lcd;
@@ -44,8 +45,10 @@ my %lcd_args = (
 
 $lcd->init(%lcd_args);
 
+my $degree = 'f';
+
 while ($continue){
-    my $temp = $env->temp;
+    my $temp = $env->temp($degree);
     my $humidity = $env->humidity;
 
     # temp is too hot
@@ -58,14 +61,14 @@ while ($continue){
             print "turned on temp control device\n";
         }
         #           "................"
-        $lcd->print("${temp}F         *");
+        $lcd->print("${temp}".uc($degree));
     }
     else {
         if ($env->status(TEMP_PIN)){
             $env->control(TEMP_PIN, OFF);
             print "turned off temp control device\n";
         }
-        $lcd->print("${temp}F");
+        $lcd->print("${temp}".uc($degree));
     }
 
     # humidity is too low
@@ -88,5 +91,5 @@ while ($continue){
     }
     sleep 300;
 }
-
+$lcd->clear;
 $pi->cleanup;
