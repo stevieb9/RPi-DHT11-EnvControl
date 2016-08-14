@@ -1,6 +1,9 @@
 Changes
 EnvControl.xs
+examples/on_off.pl
+examples/perlsub.pl
 examples/synopsis.pl
+examples/temp_hum_display.pl
 lib/RPi/DHT11/EnvControl.pm
 Makefile.PL
 MANIFEST			This list of files
