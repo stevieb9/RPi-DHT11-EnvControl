@@ -18,7 +18,7 @@ my $env = $mod->new(spin => DHT, debug => 1);
 # temp
 
 my $t = $env->temp;
-is $t, "0.00", "temp ok with no board";
+is $t, 0, "temp ok with no board";
 
 # humidity
 
