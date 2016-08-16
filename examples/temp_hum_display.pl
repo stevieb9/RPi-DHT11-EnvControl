@@ -5,6 +5,8 @@ use RPi::DHT11::EnvControl;
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 
+our $VERSION = '0.07';
+
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
