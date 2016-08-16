@@ -97,7 +97,7 @@ int c_temp(int dht_pin){
     EnvData env_data;
     int data = -1;
 
-    while (data == -1){
+    while (data == -1 && data != 0){
         env_data = read_env(dht_pin);
         data = env_data.temp;
     }
@@ -113,7 +113,7 @@ int c_humidity(int dht_pin){
     EnvData env_data;
     int data = -1;
 
-    while (data == -1){
+    while (data == -1 && data != 0){
         env_data = read_env(dht_pin);
         data = env_data.humidity;
     }

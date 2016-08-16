@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::DHT11::EnvControl.
 
+0.07 UNRELEASED
+        - modified temp() and humidity() to keep polling if the result is zero
+
 0.06    2016-08-12
         - POD updates
         - c_temp() now returns an int for both temperature and humidity. The
