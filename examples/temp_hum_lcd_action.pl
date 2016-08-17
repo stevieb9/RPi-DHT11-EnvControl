@@ -16,8 +16,14 @@ use constant {
     HUMIDITY_PIN => 26,
 };
 
-my $temp_high = 74.2;
-my $humidity_low = 20.0;
+# get a Pi object
+
+my $pi = RPi::WiringPi->new(
+    fatal_exit => 0,
+);
+
+my $temp_high = 74;
+my $humidity_low = 20;
 
 # get an environment object
 
@@ -27,16 +33,9 @@ my $env = RPi::DHT11::EnvControl->new(
     hpin => HUMIDITY_PIN,
 );
 
-# get a Pi & LCD object
-
-my $pi = RPi::WiringPi->new(
-    fatal_exit => 0,
-    setup => 'none',
-);
+# fetch an LCD object, and initialize it
 
 my $lcd = $pi->lcd;
-
-# initialize the LCD
 
 my %lcd_args = (
     rows => 2, cols => 16,
@@ -63,14 +62,14 @@ while ($continue){
             print "turned on temp control device\n";
         }
         #           "................"
-        $lcd->print("${temp}".uc($degree));
+        $lcd->print("${temp}/${temp_high}".uc($degree));
     }
     else {
         if ($env->status(TEMP_PIN)){
             $env->control(TEMP_PIN, OFF);
             print "turned off temp control device\n";
         }
-        $lcd->print("${temp}".uc($degree));
+        $lcd->print("${temp}/${temp_high}".uc($degree));
     }
 
     # humidity is too low
@@ -82,16 +81,17 @@ while ($continue){
             $env->control(HUMIDITY_PIN, ON);
             print "turned on humidifier\n";
         }
-        $lcd->print("${humidity}%     *");
+        $lcd->print("${humidity}/${humidity_low}%     *");
     }
     else {
         if ($env->status(HUMIDITY_PIN)){
             $env->control(HUMIDITY_PIN, OFF);
             print "turned off humidifier";
         }
-        $lcd->print("${humidity}%");
+        $lcd->print("${humidity}/${humidity_low}%");
     }
     sleep 300;
 }
+
 $lcd->clear;
 $pi->cleanup;
