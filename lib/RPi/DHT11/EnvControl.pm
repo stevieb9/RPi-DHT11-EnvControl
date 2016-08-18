@@ -106,7 +106,7 @@ in C<cron> or the like.
     use RPi::DHT11::EnvControl;
 
     use constant {
-        DHT_PIN => 4,
+        SENSOR_PIN => 4,
         TEMP_PIN => 1,
         HUMIDITY_PIN => 5,
         ON => 1,
@@ -117,7 +117,7 @@ in C<cron> or the like.
     my $humidity_low = 25;
 
     my $env = RPi::DHT11::EnvControl->new(
-        spin => DHT_PIN,
+        spin => SENSOR_PIN,
         tpin => TEMP_PIN,
         hpin => HUMIDITY_PIN,
     );

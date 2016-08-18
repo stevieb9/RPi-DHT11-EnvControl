@@ -28,13 +28,13 @@ bool noboard_test(); // unit testing with no RPi board
 bool sanity();
 
 EnvData read_env(int dht_pin){
-    int dht11_dat[5] = {0, 0, 0, 0, 0};
+    int data[5] = {0, 0, 0, 0, 0};
     
     uint8_t laststate = HIGH;
     uint8_t counter = 0;
     uint8_t j = 0, i;
 
-    dht11_dat[0] = dht11_dat[1] = dht11_dat[2] = dht11_dat[3] = dht11_dat[4] = 0;
+    data[0] = data[1] = data[2] = data[3] = data[4] = 0;
     
     pinMode(dht_pin, OUTPUT);
     digitalWrite(dht_pin, LOW);
@@ -60,9 +60,9 @@ EnvData read_env(int dht_pin){
             break;
 
         if ((i >= 4) && (i % 2 == 0)){
-            dht11_dat[j / 8] <<= 1;
+            data[j / 8] <<= 1;
             if (counter > 16)
-                dht11_dat[j / 8] |= 1;
+                data[j / 8] |= 1;
             j++;
         }
     }
@@ -70,13 +70,13 @@ EnvData read_env(int dht_pin){
     EnvData env_data;
     
     if ((j >= 40) &&
-         (dht11_dat[4] == ((dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF))){
+         (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF))){
 
          // printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-         //       dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+         //       data[0], data[1], data[2], data[3], f );
 
-        int t = dht11_dat[2];
-        int h = dht11_dat[0];
+        int t = data[2];
+        int h = data[0];
 
         env_data.temp = t;
         env_data.humidity = h;
