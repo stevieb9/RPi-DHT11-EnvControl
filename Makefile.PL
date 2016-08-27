@@ -8,6 +8,7 @@ WriteMakefile(
     ($] >= 5.005 ?
       (ABSTRACT_FROM  => 'lib/RPi/DHT11/EnvControl.pm',
        AUTHOR         => 'Steve Bertrand <steveb@cpan.org>') : ()),
+    EXE_FILES         => [qw(bin/envgui)],
     LIBS              => ['-lwiringPi'],
     DEFINE            => '',
     INC               => '-I.',
