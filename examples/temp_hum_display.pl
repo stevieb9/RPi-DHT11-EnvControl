@@ -11,9 +11,9 @@ my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
 use constant {
-    SENSOR_PIN => 29,
+    SENSOR_PIN => 13,
     TEMP_PIN => 27,
-    HUMIDITY_PIN => 26,
+    HUMIDITY_PIN => 0,
 };
 
 my $temp_high = 74.2;
@@ -40,8 +40,8 @@ my $lcd = $pi->lcd;
 
 my %lcd_args = (
     rows => 2, cols => 16,
-    bits => 4, rs => 6, strb => 5,
-    d0 => 4, d1 => 2, d2 => 1, d3 => 3,
+    bits => 4, rs => 2, strb => 25,
+    d0 => 14, d1 => 26, d2 => 23, d3 => 15,
     d4 => 0, d5 => 0, d6 => 0, d7 => 0,
 );
 
