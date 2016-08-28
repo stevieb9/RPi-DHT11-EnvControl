@@ -4,8 +4,6 @@ Revision history for Perl extension RPi::DHT11::EnvControl.
         - modified temp() and humidity() to keep polling if the result is zero
         - cleanup example code
         - variable renaming
-        - added bin/ dir, and wrote bin/envgui GUI application, installed via
-          Makefile.PL
 
 0.06    2016-08-12
         - POD updates
